@@ -7,14 +7,22 @@ import {
   Put,
   Param,
   Query,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
   @Get('/:id')
   // we can get specific component for params,query or body by passing that field in that ()
-  public getUsers(@Param('id') params: any, @Query() query: any): string {
-    console.log(params, query);
+  public getUsers(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): string {
+    console.log(id, typeof id);
+    console.log(limit, typeof limit);
+    console.log(page, typeof page);
     return 'You sent a get request to /users endpoint';
   }
 
