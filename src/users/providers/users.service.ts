@@ -15,7 +15,7 @@ export class UserService {
     ];
   }
 
-  public findById(id: GetUsersParamDto) {
+  public findById(id: string) {
     console.log(id);
     return {
       firstName: 'John',
