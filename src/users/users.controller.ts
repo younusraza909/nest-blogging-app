@@ -10,7 +10,6 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
   Body,
-  ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 
@@ -31,7 +30,9 @@ export class UsersController {
 
   @Post()
   public createUser(
-    @Body(new ValidationPipe()) createUserDto: CreateUserDto,
+    // @Body(new ValidationPipe()) createUserDto: CreateUserDto,
+    // we removed validation pipe from here and added it in main.ts as global to prevent repeetition
+    @Body() createUserDto: CreateUserDto,
   ): string {
     console.log(createUserDto);
     return 'You sent a post request to /users endpoint';
