@@ -6,6 +6,7 @@ import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
+import { Post } from './posts/post.entity';
 @Module({
   imports: [
     UsersModule,
@@ -17,7 +18,7 @@ import { User } from './users/user.entity';
       useFactory: () => ({
         type: 'postgres',
         synchronize: true,
-        entities: [User],
+        entities: [User, Post],
         port: 5432,
         host: 'localhost',
         username: 'postgres',
