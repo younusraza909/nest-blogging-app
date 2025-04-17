@@ -58,9 +58,8 @@ export class UsersController {
     // @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     // we removed validation pipe from here and added it in main.ts as global to prevent repeetition
     @Body() createUserDto: CreateUserDto,
-  ): string {
-    console.log(createUserDto);
-    return 'You sent a post request to /users endpoint';
+  ) {
+    return this.userService.createUser(createUserDto);
   }
 
   @Patch('/:id')
