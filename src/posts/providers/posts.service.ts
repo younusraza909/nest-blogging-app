@@ -3,7 +3,6 @@ import { UserService } from '../../users/providers/users.service';
 import { Repository } from 'typeorm';
 import { Post } from '../post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreatePostDto } from '../dto/create-posts-dto';
 
 @Injectable()
 export class PostsService {
@@ -13,10 +12,7 @@ export class PostsService {
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
   ) {}
-  public async createPost(createPostDto: CreatePostDto) {
-    const post = this.postRepository.create(createPostDto);
-    return this.postRepository.save(post);
-  }
+
   public findAll(userId: string) {
     const user = this.userService.findById(userId);
     return [
