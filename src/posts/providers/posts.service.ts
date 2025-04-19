@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Post } from '../post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto } from '../dto/create-posts-dto';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class PostsService {
@@ -15,8 +16,15 @@ export class PostsService {
   ) {}
 
   public async create(createPostDto: CreatePostDto) {
-    // due to cascade set to true we typeorm directly detects and save entry in meta options and save relevant id here in post
-    const post = this.postRepository.create(createPostDto);
+    const author = (await this.userService.findOneById(
+      createPostDto.authorId,
+    )) as User;
+
+    // Create the post
+    const post = this.postRepository.create({
+      ...createPostDto,
+      author: author,
+    });
 
     return await this.postRepository.save(post);
   }
