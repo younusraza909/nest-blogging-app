@@ -15,26 +15,19 @@ export class PostsService {
   ) {}
 
   public async create(createPostDto: CreatePostDto) {
+    // due to cascade set to true we typeorm directly detects and save entry in meta options and save relevant id here in post
     const post = this.postRepository.create(createPostDto);
 
     return await this.postRepository.save(post);
   }
 
-  public findAll(userId: string) {
-    const user = this.userService.findById(userId);
-    return [
-      {
-        user: user,
-        title: 'Post 1',
-        content: 'Content 1',
-        userId: userId,
+  public async findAll() {
+    // if we set eager to true while setting true for cascade it will also fetch all retion whil getting post so we dont need below relation code
+    const posts = await this.postRepository.find({
+      relations: {
+        metaOptions: true,
       },
-      {
-        user: user,
-        title: 'Post 2',
-        content: 'Content 2',
-        userId: userId,
-      },
-    ];
+    });
+    return posts;
   }
 }
