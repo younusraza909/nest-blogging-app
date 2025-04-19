@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { Post } from '../post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto } from '../dto/create-posts-dto';
-import { MetaOption } from 'src/meta-options/meta-option.entity';
 
 @Injectable()
 export class PostsService {
@@ -13,9 +12,6 @@ export class PostsService {
 
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
-
-    @InjectRepository(MetaOption)
-    private readonly metaOptionsRepository: Repository<MetaOption>,
   ) {}
 
   public async create(createPostDto: CreatePostDto) {
@@ -37,13 +33,8 @@ export class PostsService {
 
   public async delete(id: number) {
     // Find the post from the database
-    const post = await this.postRepository.findOneBy({ id });
-
-    // Delete metaOptions and the post
     await this.postRepository.delete(id);
-    if (post?.metaOptions?.id)
-      await this.metaOptionsRepository.delete(post?.metaOptions.id);
 
-    return { deleted: true, id: post?.id };
+    return { deleted: true, id };
   }
 }
