@@ -25,6 +25,15 @@ export class TagsService {
     };
   }
 
+  public async softRemove(id: number) {
+    await this.tagsRepository.softDelete(id);
+
+    return {
+      softDeleted: true,
+      id,
+    };
+  }
+
   public async findMultipleTags(tags: number[]) {
     const results = await this.tagsRepository.find({
       where: {
