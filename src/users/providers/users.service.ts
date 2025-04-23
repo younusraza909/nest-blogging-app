@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   RequestTimeoutException,
 } from '@nestjs/common';
@@ -94,10 +95,16 @@ export class UsersService {
     const newUsers: User[] = [];
     //Create Query Runner Instance
     const queryRunner = this.dataSource.createQueryRunner();
-    //Connect Query Runner with Data source
-    await queryRunner.connect();
-    //Start Transaction
-    await queryRunner.startTransaction();
+    try {
+      //Connect Query Runner with Data source
+      await queryRunner.connect();
+      //Start Transaction
+      await queryRunner.startTransaction();
+    } catch (err) {
+      console.log('error', err);
+      throw new RequestTimeoutException('Cannot connect to database');
+    }
+
     try {
       //If Successfull Commits
       for (const user of createManyUsersDto.users) {
@@ -111,6 +118,9 @@ export class UsersService {
       console.log('Error', error);
       // if un successfull rollback
       await queryRunner.rollbackTransaction();
+      throw new ConflictException('could not complete the transaction', {
+        description: String(error),
+      });
     } finally {
       //Release connection
       await queryRunner.release();
