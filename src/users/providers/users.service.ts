@@ -1,15 +1,12 @@
 import {
   BadRequestException,
-  Inject,
   Injectable,
   RequestTimeoutException,
-  forwardRef,
 } from '@nestjs/common';
 import { User } from '../user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { AuthServices } from 'src/auth/providers/auth.services';
 
 /**
  * Controller class for '/users' API endpoint
@@ -23,9 +20,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
 
-    // Injecting Auth Service
-    @Inject(forwardRef(() => AuthServices))
-    private readonly authService: AuthServices,
+    private readonly dataSource: DataSource,
   ) {}
 
   public async createUser(createUserDto: CreateUserDto) {
@@ -91,6 +86,33 @@ export class UsersService {
           description: 'Error connecting to database',
         },
       );
+    }
+  }
+
+  public async createMany(createUserDto: CreateUserDto[]) {
+    const newUsers: User[] = [];
+    //Create Query Runner Instance
+    const queryRunner = this.dataSource.createQueryRunner();
+    //Connect Query Runner with Data source
+    await queryRunner.connect();
+    //Start Transaction
+    await queryRunner.startTransaction();
+    try {
+      //If Successfull Commits
+      for (const user of createUserDto) {
+        const newUser = queryRunner.manager.create(User, user);
+        const result = await queryRunner.manager.save(newUser);
+        newUsers.push(result);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      console.log('Error', error);
+      // if un successfull rollback
+      await queryRunner.rollbackTransaction();
+    } finally {
+      //Release connection
+      await queryRunner.release();
     }
   }
 }
