@@ -16,6 +16,7 @@ import { GetUsersParamDto } from './dtos/get-users-param.dto';
 import { PatchUserDto } from './dtos/patch-user.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './providers/users.service';
+import { CreateManyUsersDto } from './dtos/create-many-users.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -61,6 +62,15 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
   ) {
     return this.userService.createUser(createUserDto);
+  }
+
+  @Post('create-many')
+  public createManyUsers(
+    // @Body(new ValidationPipe()) createUserDto: CreateUserDto,
+    // we removed validation pipe from here and added it in main.ts as global to prevent repeetition
+    @Body() createMantUsersDto: CreateManyUsersDto,
+  ) {
+    return this.userService.createMany(createMantUsersDto);
   }
 
   @Patch('/:id')
