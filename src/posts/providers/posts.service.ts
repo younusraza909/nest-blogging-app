@@ -52,16 +52,10 @@ export class PostsService {
     userId: string,
     postQuery: getPostDto,
   ): Promise<Paginated<Post>> {
-    // if we set eager to true while setting true for cascade it will also fetch all retion whil getting post so we dont need below relation code
-    // const posts = await this.postRepository.find({
-    //   relations: {
-    //     metaOptions: true,
-    //     tags: true,
-    //   },
-    // });
     const result = this.paginationProvider.paginateQuery(
       postQuery,
       this.postRepository,
+      { author: true },
     );
     return result;
   }

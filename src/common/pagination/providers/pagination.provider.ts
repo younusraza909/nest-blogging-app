@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ObjectLiteral } from 'typeorm';
+import { FindOptionsRelations, ObjectLiteral } from 'typeorm';
 import { Paginated } from '../interfaces/paginated.interface';
 import { PaginationQueryDto } from '../dtos/pagination-query.dto';
 import { Repository } from 'typeorm';
@@ -16,12 +16,16 @@ export class PaginationProvider {
   public async paginateQuery<T extends ObjectLiteral>(
     paginationQuery: PaginationQueryDto,
     repository: Repository<T>,
+    relations: FindOptionsRelations<T>,
   ): Promise<Paginated<T>> {
     const queryOptions = {
       skip: (paginationQuery.page - 1) * paginationQuery.limit,
       take: paginationQuery.limit,
     };
-    const results = await repository.find(queryOptions);
+    const results = await repository.find({
+      ...queryOptions,
+      relations: relations,
+    });
 
     /**
      * Create the request URLs
