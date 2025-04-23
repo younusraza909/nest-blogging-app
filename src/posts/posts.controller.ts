@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   ParseIntPipe,
   Patch,
   Post,
@@ -12,15 +13,16 @@ import { PostsService } from './providers/posts.service';
 import { ApiTags } from '@nestjs/swagger';
 import { PatchPostDto } from './dto/patch-posts.dto';
 import { CreatePostDto } from './dto/create-posts-dto';
+import { getPostDto } from './dto/get-posts.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Get('/')
-  getPosts() {
-    return this.postsService.findAll();
+  @Get('/{:userId}')
+  getPosts(@Param('userId') userId: string, @Query() postQuery: getPostDto) {
+    return this.postsService.findAll(userId, postQuery);
   }
 
   @Post()

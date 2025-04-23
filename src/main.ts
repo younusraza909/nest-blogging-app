@@ -10,6 +10,9 @@ async function bootstrap() {
       whitelist: true, //extra property wont come if not there in DTO , this alone wont throw error
       forbidNonWhitelisted: true, //this will throw error if extra property comes, it works with whilelist config
       transform: true, //After validation it will transform that property to the instance we have defined in DTO
+      transformOptions: {
+        enableImplicitConversion: true, // in dto we dont need to convert implicit conversion use Type from transformer
+      },
     }),
   );
   const config = new DocumentBuilder()

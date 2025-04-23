@@ -12,6 +12,9 @@ import { User } from 'src/users/user.entity';
 import { TagsService } from 'src/tags/providers/tag.services';
 import { PatchPostDto } from '../dto/patch-posts.dto';
 import { Tag } from 'src/tags/tags.entity';
+import { getPostDto } from '../dto/get-posts.dto';
+import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
+import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 
 @Injectable()
 export class PostsService {
@@ -19,6 +22,8 @@ export class PostsService {
     private readonly userService: UsersService,
 
     private readonly tagsService: TagsService,
+
+    private readonly paginationProvider: PaginationProvider,
 
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
@@ -43,15 +48,22 @@ export class PostsService {
     return await this.postRepository.save(post);
   }
 
-  public async findAll() {
+  public async findAll(
+    userId: string,
+    postQuery: getPostDto,
+  ): Promise<Paginated<Post>> {
     // if we set eager to true while setting true for cascade it will also fetch all retion whil getting post so we dont need below relation code
-    const posts = await this.postRepository.find({
-      relations: {
-        metaOptions: true,
-        tags: true,
-      },
-    });
-    return posts;
+    // const posts = await this.postRepository.find({
+    //   relations: {
+    //     metaOptions: true,
+    //     tags: true,
+    //   },
+    // });
+    const result = this.paginationProvider.paginateQuery(
+      postQuery,
+      this.postRepository,
+    );
+    return result;
   }
 
   public async delete(id: number) {
