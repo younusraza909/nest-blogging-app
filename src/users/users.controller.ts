@@ -17,6 +17,8 @@ import { PatchUserDto } from './dtos/patch-user.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './providers/users.service';
 import { CreateManyUsersDto } from './dtos/create-many-users.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AuthType } from 'src/auth/enums/auth-type.enum';
 
 @ApiTags('Users')
 @Controller('users')
@@ -56,6 +58,7 @@ export class UsersController {
   }
 
   @Post()
+  @Auth(AuthType.None)
   public createUser(
     // @Body(new ValidationPipe()) createUserDto: CreateUserDto,
     // we removed validation pipe from here and added it in main.ts as global to prevent repeetition
