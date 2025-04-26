@@ -17,4 +17,9 @@ export default Joi.object({
     .positive()
     .required()
     .default(3600),
+  JWT_REFRESH_TOKEN_TTL: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .default(86400),
 });
