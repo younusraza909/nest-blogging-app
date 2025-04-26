@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   RequestTimeoutException,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { Tag } from 'src/tags/tags.entity';
 import { getPostDto } from '../dto/get-posts.dto';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
+import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 
 @Injectable()
 export class PostsService {
@@ -29,23 +31,38 @@ export class PostsService {
     private readonly postRepository: Repository<Post>,
   ) {}
 
-  public async create(createPostDto: CreatePostDto) {
-    const author = (await this.userService.findOneById(
-      createPostDto.authorId,
-    )) as User;
+  public async create(createPostDto: CreatePostDto, user: ActiveUser) {
+    let author: User | null = null;
+    let tags: Tag[] | null = null;
 
-    const tags = await this.tagsService.findMultipleTags(
-      createPostDto.tags ?? [],
-    );
+    try {
+      // Find author from database based on authorId
+      author = await this.userService.findOneById(user.sub);
+      // Find tags
+      tags = await this.tagsService.findMultipleTags(createPostDto.tags ?? []);
+    } catch (error) {
+      throw new ConflictException(error);
+    }
 
-    // Create the post
+    if ((createPostDto.tags ?? []).length !== tags.length) {
+      throw new BadRequestException('Please check your tag Ids');
+    }
+
+    // Create post
     const post = this.postRepository.create({
       ...createPostDto,
-      author: author,
+      ...(author ? { author } : {}),
       tags: tags,
     });
 
-    return await this.postRepository.save(post);
+    try {
+      // return the post
+      return await this.postRepository.save(post);
+    } catch (error) {
+      throw new ConflictException(error, {
+        description: 'Ensure post slug is unique and not a duplicate',
+      });
+    }
   }
 
   public async findAll(

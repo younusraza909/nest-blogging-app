@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 
-interface ActiveUser {
+export interface ActiveUser {
   sub: number;
   email: string;
 }
