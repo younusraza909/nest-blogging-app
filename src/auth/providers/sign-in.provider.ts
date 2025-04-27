@@ -33,6 +33,10 @@ export class SignInProvider {
 
     let isEqual: boolean = false;
 
+    if (!user.password) {
+      throw new UnauthorizedException('User does not have a password');
+    }
+
     try {
       // Compare the password to hash
       isEqual = await this.hashingProvider.comparePassword(
