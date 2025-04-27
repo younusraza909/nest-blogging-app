@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { config } from 'aws-sdk';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +17,7 @@ async function bootstrap() {
       },
     }),
   );
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('Nest.js Masterclass - Blog app API')
     .setDescription('User the base API url as http://localhost:3000')
     .setTermsOfService('https://example.com/terms')
@@ -23,11 +25,20 @@ async function bootstrap() {
     .addServer('http://localhost:3000', 'Local server')
     .setVersion('1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
-  app.enableCors();
+  // Set AWS SDK
+  const configService = app.get(ConfigService);
+  config.update({
+    region: configService.get('AWS_REGION'),
+    credentials: {
+      accessKeyId: configService.get('AWS_ACCESS_KEY_ID') ?? '',
+      secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY') ?? '',
+    },
+  });
 
+  app.enableCors();
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();
